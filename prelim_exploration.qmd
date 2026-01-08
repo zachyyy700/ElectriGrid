@@ -1,0 +1,50 @@
+---
+title: "Preliminary Data Exploration"
+author: "Zach Loo, Sofia Rodas, Sofia Sarak"
+format: html
+editor: visual
+---
+
+The following quarto document contains preliminary data exploration for the MEDS 2026 capstone project, ElectriGrid. This project maps how distribution grid constraints shape resilient and equitable energy transition. For the exploration, we will use Zillow data that contains substation name, census tract GEOID, geographic coordinates, and the number and types of residential unit attributed to each.
+
+## Set Up
+
+```{r}
+#| message: false
+# Load necessary libraries
+library(tidyverse)
+library(janitor)
+library(here)
+library(ggplot2)
+```
+
+```{r}
+#| message: false 
+# Load in data
+zillow_sub <- read_csv(here("data/total_sub.csv")) %>% 
+  clean_names()
+
+zillow_sub_long <- zillow_sub %>% 
+  pivot_longer(cols = c("condo", "multi", "single"),
+               names_to = "type",
+               values_to = "quantity")
+```
+
+## Preliminary Statistics
+
+```{r}
+stats <- zillow_sub_long %>% 
+  group_by(area, type) %>% 
+  mutate(per_type = (quantity/total) * 100) %>% 
+  select(sub, area, type, per_type)
+```
+
+## Visualizations
+
+```{r}
+ggplot(data = zillow_sub_long, aes(x = type, y = quantity, fill = type)) +
+  geom_col() +
+  facet_wrap(~area)
+```
+
+
